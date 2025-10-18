@@ -15,6 +15,10 @@ public struct Tool: Hashable, Codable, Sendable {
     public let description: String?
     /// The tool input schema
     public let inputSchema: Value
+    
+    public let outputSchema: Value?
+
+    public let _meta: Value?
 
     /// Annotations that provide display-facing and operational information for a Tool.
     ///
@@ -87,12 +91,16 @@ public struct Tool: Hashable, Codable, Sendable {
         name: String,
         description: String?,
         inputSchema: Value,
+        outputSchema: Value?,
+        _meta: Value?,
         annotations: Annotations = nil
     ) {
         self.name = name
         self.description = description
         self.inputSchema = inputSchema
         self.annotations = annotations
+        self.outputSchema = outputSchema
+        self._meta = _meta
     }
 
     /// Content types that can be returned by a tool
@@ -176,6 +184,8 @@ public struct Tool: Hashable, Codable, Sendable {
         case name
         case description
         case inputSchema
+        case outputSchema
+        case _meta
         case annotations
     }
 
@@ -184,6 +194,8 @@ public struct Tool: Hashable, Codable, Sendable {
         name = try container.decode(String.self, forKey: .name)
         description = try container.decodeIfPresent(String.self, forKey: .description)
         inputSchema = try container.decode(Value.self, forKey: .inputSchema)
+        outputSchema = try container.decodeIfPresent(Value.self, forKey: .outputSchema)
+        _meta = try container.decodeIfPresent(Value.self, forKey: ._meta)
         annotations =
             try container.decodeIfPresent(Tool.Annotations.self, forKey: .annotations) ?? .init()
     }
@@ -193,6 +205,8 @@ public struct Tool: Hashable, Codable, Sendable {
         try container.encode(name, forKey: .name)
         try container.encode(description, forKey: .description)
         try container.encode(inputSchema, forKey: .inputSchema)
+        try container.encode(outputSchema, forKey: .outputSchema)
+        try container.encode(_meta, forKey: ._meta)
         if !annotations.isEmpty {
             try container.encode(annotations, forKey: .annotations)
         }
@@ -247,10 +261,14 @@ public enum CallTool: Method {
     public struct Result: Hashable, Codable, Sendable {
         public let content: [Tool.Content]
         public let isError: Bool?
+        public let structuredContent: Value?
+        public let _meta: Value?
 
-        public init(content: [Tool.Content], isError: Bool? = nil) {
+        public init(content: [Tool.Content], isError: Bool? = nil, structuredContent: Value?, _meta: Value?) {
             self.content = content
             self.isError = isError
+            self.structuredContent = structuredContent
+            self._meta = _meta
         }
     }
 }

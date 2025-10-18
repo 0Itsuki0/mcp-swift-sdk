@@ -608,13 +608,11 @@ public actor Client {
         return (tools: result.tools, nextCursor: result.nextCursor)
     }
 
-    public func callTool(name: String, arguments: [String: Value]? = nil) async throws -> (
-        content: [Tool.Content], isError: Bool?
-    ) {
+    public func callTool(name: String, arguments: [String: Value]? = nil) async throws -> CallTool.Result {
         try validateServerCapability(\.tools, "Tools")
         let request = CallTool.request(.init(name: name, arguments: arguments))
         let result = try await send(request)
-        return (content: result.content, isError: result.isError)
+        return result
     }
 
     // MARK: - Sampling
